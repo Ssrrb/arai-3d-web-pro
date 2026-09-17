@@ -1,0 +1,8 @@
+{
+  "name": "Remix arai-3d-web",
+  "description": "Imported from GitHub: Ssrrb/arai-3d-web",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
