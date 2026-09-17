@@ -168,9 +168,11 @@ export const Viewer3D: React.FC<Viewer3DProps> = ({
             name.startsWith('Dimension ') ||
             name.startsWith('Extension ') ||
             name.startsWith('Tick ') ||
+            name.startsWith('Closed height') ||
             name.startsWith('REF ') ||
             name.startsWith('CONTROL') ||
             name.includes('CAD status') ||
+            name.includes('CAD dimension') ||
             name.includes('Active display window') ||
             name.includes('Studio ground') ||
             name.includes('ground') ||
@@ -253,6 +255,28 @@ export const Viewer3D: React.FC<Viewer3DProps> = ({
                     standardMat.color.set(0xb8bec7);
                     standardMat.roughness = 0.24;
                     standardMat.metalness = 0.88;
+                  } else if (matName.includes('brand artwork') || matName.includes('arai')) {
+                    // Alpha-cut supplied artwork: discard the blue-teal transparent pixels
+                    // so only the silver logo decal remains on the matte black cover.
+                    standardMat.color.set(0xffffff);
+                    standardMat.roughness = 0.34;
+                    standardMat.metalness = 0.35;
+                    standardMat.alphaTest = 0.5;
+                    standardMat.transparent = false;
+                    standardMat.depthWrite = true;
+                    if (standardMat.map) {
+                      standardMat.map.colorSpace = THREE.SRGBColorSpace;
+                      standardMat.map.anisotropy = 8;
+                    }
+                    standardMat.needsUpdate = true;
+                  } else if (matName.includes('chrome svg')) {
+                    if (matName.includes('green')) standardMat.color.set(0x34a853);
+                    else if (matName.includes('red')) standardMat.color.set(0xea4335);
+                    else if (matName.includes('yellow')) standardMat.color.set(0xfbbc04);
+                    else if (matName.includes('white')) standardMat.color.set(0xf8f9fa);
+                    else standardMat.color.set(0x0b57d0);
+                    standardMat.roughness = 0.45;
+                    standardMat.metalness = 0.0;
                   } else {
                     standardMat.color.set(0x1a1a1a);
                     standardMat.roughness = Math.min(Math.max(standardMat.roughness ?? 0.45, 0.25), 0.85);

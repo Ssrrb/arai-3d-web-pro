@@ -193,9 +193,11 @@ export const Scene3D: React.FC<Scene3DProps> = ({
             name.startsWith('Dimension ') ||
             name.startsWith('Extension ') ||
             name.startsWith('Tick ') ||
+            name.startsWith('Closed height') ||
             name.startsWith('REF ') ||
             name.startsWith('CONTROL') ||
             name.includes('CAD status') ||
+            name.includes('CAD dimension') ||
             name.includes('Active display window') ||
             name.includes('Studio ground') ||
             name.includes('ground') ||
@@ -298,10 +300,21 @@ export const Scene3D: React.FC<Scene3DProps> = ({
                     standardMat.metalness = 0.88;
                   }
                   // ARAI Embossed Silver Brand Mark
+                  // The supplied artwork is an alpha-cut decal: its fully transparent pixels
+                  // carry a blue-teal RGB (76,105,113). alphaTest discards them so only the
+                  // genuine silver logo shows instead of a solid blue rectangle.
                   else if (matName.includes('brand artwork') || matName.includes('arai')) {
-                    standardMat.color.set(0xd0d5dd);
-                    standardMat.roughness = 0.22;
-                    standardMat.metalness = 0.78;
+                    standardMat.color.set(0xffffff);
+                    standardMat.roughness = 0.34;
+                    standardMat.metalness = 0.35;
+                    standardMat.alphaTest = 0.5;
+                    standardMat.transparent = false;
+                    standardMat.depthWrite = true;
+                    if (standardMat.map) {
+                      standardMat.map.colorSpace = THREE.SRGBColorSpace;
+                      standardMat.map.anisotropy = 8;
+                    }
+                    standardMat.needsUpdate = true;
                   }
                   // Webcam optical glass
                   else if (matName.includes('glass') || matName.includes('webcam')) {
@@ -314,6 +327,16 @@ export const Scene3D: React.FC<Scene3DProps> = ({
                     standardMat.color.set(0xd4af37);
                     standardMat.roughness = 0.25;
                     standardMat.metalness = 0.85;
+                  }
+                  // ChromeOS Chrome logo artwork (new model: SVG brand segments)
+                  else if (matName.includes('chrome svg')) {
+                    if (matName.includes('green')) standardMat.color.set(0x34a853);
+                    else if (matName.includes('red')) standardMat.color.set(0xea4335);
+                    else if (matName.includes('yellow')) standardMat.color.set(0xfbbc04);
+                    else if (matName.includes('white')) standardMat.color.set(0xf8f9fa);
+                    else standardMat.color.set(0x0b57d0);
+                    standardMat.roughness = 0.45;
+                    standardMat.metalness = 0.0;
                   }
                   // General fallback: Solid dark finish
                   else {
