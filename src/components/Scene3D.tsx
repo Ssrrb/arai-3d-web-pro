@@ -181,7 +181,9 @@ export const Scene3D: React.FC<Scene3DProps> = ({
         // A) Eliminate ghost effect: completely filter out all 26 CAD Boolean cutter/tool objects and dimensions
         // B) Render the genuine matte black finish (#1A1A1A / MT11015) as specified in specs.md
         root.traverse((node) => {
-          const name = node.name || '';
+          // GLTFLoader sanitizes node names by replacing whitespace with "_"
+          // (e.g. "Dim 229.00 mm" -> "Dim_229.00_mm"), so normalize before matching.
+          const name = (node.name || '').replace(/_/g, ' ');
 
           // 1. ELIMINATE GHOST EFFECT:
           // In Blender CAD, boolean cutter objects are named "TOOL | ..." and have no material assigned.

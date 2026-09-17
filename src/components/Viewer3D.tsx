@@ -58,7 +58,7 @@ export const Viewer3D: React.FC<Viewer3DProps> = ({
   const [activePreset, setActivePreset] = useState<CameraPreset>('perspective');
   const [lightingMode, setLightingMode] = useState<LightingMode>('studio');
   const [wireframe, setWireframe] = useState<boolean>(false);
-  const [showCAD, setShowCAD] = useState<boolean>(true);
+  const [showCAD, setShowCAD] = useState<boolean>(false);
   const [autoRotate, setAutoRotate] = useState<boolean>(false);
   const [screenHotspots, setScreenHotspots] = useState<ScreenHotspot[]>([]);
   const [showHotspotPins, setShowHotspotPins] = useState<boolean>(true);
@@ -158,7 +158,9 @@ export const Viewer3D: React.FC<Viewer3DProps> = ({
 
         // Traverse meshes to filter out studio ground, CAD dimensions, and TOOL boolean cutter objects
         model.traverse((child) => {
-          const name = child.name || '';
+          // GLTFLoader sanitizes node names by replacing whitespace with "_"
+          // (e.g. "Dim 229.00 mm" -> "Dim_229.00_mm"), so normalize before matching.
+          const name = (child.name || '').replace(/_/g, ' ');
 
           // ELIMINATE GHOST EFFECT: Filter out all 26 CAD Boolean cutter/tool objects and dimensions
           if (
@@ -500,8 +502,16 @@ export const Viewer3D: React.FC<Viewer3DProps> = ({
   useEffect(() => {
     if (!modelGroupRef.current) return;
     modelGroupRef.current.traverse((child) => {
-      const name = child.name || '';
-      const isCAD = name.startsWith('Dim') || name.startsWith('Dimension') || name.startsWith('Extension') || name.includes('CAD');
+      const name = (child.name || '').replace(/_/g, ' ');
+      const isCAD =
+        name.startsWith('Dim ') ||
+        name.startsWith('Dimension ') ||
+        name.startsWith('Extension ') ||
+        name.startsWith('Tick ') ||
+        name.startsWith('Closed height') ||
+        name.includes('CAD status') ||
+        name.includes('CAD dimension') ||
+        name.includes('C-D parting line');
       if (isCAD) {
         child.visible = showCAD;
       }
