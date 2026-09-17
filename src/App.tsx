@@ -93,7 +93,7 @@ export function App() {
       ram: currentProduct.specs.ram.split(' ')[0] || '8GB',
       storage: currentProduct.specs.storage.split(' ')[0] || '128GB',
       keyboardLayout: 'Spanish ISO (Ñ)',
-      includeStylus: currentProduct.id === 2 || currentProduct.id === 5,
+      includeStylus: currentProduct.id === 1,
       addedAt: Date.now()
     };
 

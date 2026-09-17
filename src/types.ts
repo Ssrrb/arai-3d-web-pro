@@ -1,5 +1,7 @@
 export type CameraPreset = 'perspective' | 'front' | 'top' | 'side' | 'isometric' | 'ports' | 'keyboard';
 
+export type FoldMode = 'closed' | 'laptop' | 'stand' | 'tent' | 'tablet';
+
 export type LightingMode = 'studio' | 'cyber' | 'technical' | 'bright';
 
 export interface ProductVariant {
@@ -16,6 +18,7 @@ export interface ProductVariant {
   themeBg: string;
   finishName: string;
   tagline: string;
+  defaultFold?: FoldMode;
   specs: {
     display: string;
     hinge: string;

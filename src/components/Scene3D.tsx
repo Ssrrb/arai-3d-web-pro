@@ -4,7 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import gsap from 'gsap';
 import { RotateCw, Layers, RefreshCw } from 'lucide-react';
-import { ProductVariant } from '../types';
+import { ProductVariant, FoldMode } from '../types';
 import { soundEngine } from '../utils/soundEngine';
 
 interface Scene3DProps {
@@ -15,7 +15,7 @@ interface Scene3DProps {
   isConfiguratorMode?: boolean;
 }
 
-export type LaptopFoldMode = 'laptop' | 'stand' | 'tent' | 'tablet';
+export type LaptopFoldMode = FoldMode;
 
 // Fold angle configurations for the dual 360° hinge system
 const FOLD_CONFIGS: Record<LaptopFoldMode, {
@@ -24,11 +24,17 @@ const FOLD_CONFIGS: Record<LaptopFoldMode, {
   camPos: [number, number, number];
   target: [number, number, number];
 }> = {
+  closed: {
+    hingeA: 0,
+    hingeB: 0, // Lid fully shut against the base
+    camPos: [0, 0.30, 0.46],
+    target: [0, 0.01, 0]
+  },
   laptop: {
     hingeA: 0,
     hingeB: -THREE.MathUtils.degToRad(112), // Ergonomic ~112° view
-    camPos: [0, 0.20, 0.40],
-    target: [0, 0.06, 0]
+    camPos: [0, 0.40, 0.66],
+    target: [0, 0.11, 0]
   },
   stand: {
     hingeA: -THREE.MathUtils.degToRad(140),
@@ -45,8 +51,8 @@ const FOLD_CONFIGS: Record<LaptopFoldMode, {
   tablet: {
     hingeA: -THREE.MathUtils.degToRad(180),
     hingeB: -THREE.MathUtils.degToRad(180), // 360° fully folded tablet
-    camPos: [0, 0.36, 0.14],
-    target: [0, 0.02, 0]
+    camPos: [0, 0.52, 0.38],
+    target: [0, 0.01, 0]
   }
 };
 
@@ -74,6 +80,10 @@ export const Scene3D: React.FC<Scene3DProps> = ({
   const controlsRef = useRef<OrbitControls | null>(null);
   const modelGroupRef = useRef<THREE.Group | null>(null);
 
+  // Always-current product reference so the async model load can read the active variant
+  const productRef = useRef<ProductVariant>(currentProduct);
+  productRef.current = currentProduct;
+
   // Hinge node references for articulated 360° motion
   const hingeARef = useRef<THREE.Object3D | null>(null);
   const hingeBRef = useRef<THREE.Object3D | null>(null);
@@ -81,12 +91,62 @@ export const Scene3D: React.FC<Scene3DProps> = ({
   // Store materials to restore or update dynamically
   const bodyMaterialsRef = useRef<THREE.MeshStandardMaterial[]>([]);
 
+  // Apply a fold configuration. `animate = false` snaps instantly (used right after load).
+  const applyFold = (mode: LaptopFoldMode, animate: boolean = true) => {
+    const config = FOLD_CONFIGS[mode] || FOLD_CONFIGS.laptop;
+    const duration = 1.1;
+    const ease = 'power3.inOut';
+
+    if (hingeARef.current) {
+      if (animate) {
+        gsap.to(hingeARef.current.rotation, { x: config.hingeA, duration, ease });
+      } else {
+        hingeARef.current.rotation.x = config.hingeA;
+      }
+    }
+
+    if (hingeBRef.current) {
+      if (animate) {
+        gsap.to(hingeBRef.current.rotation, { x: config.hingeB, duration, ease });
+      } else {
+        hingeBRef.current.rotation.x = config.hingeB;
+      }
+    }
+
+    if (cameraRef.current && controlsRef.current) {
+      if (animate) {
+        gsap.to(cameraRef.current.position, {
+          x: config.camPos[0],
+          y: config.camPos[1],
+          z: config.camPos[2],
+          duration: 1.2,
+          ease: 'power3.inOut'
+        });
+        gsap.to(controlsRef.current.target, {
+          x: config.target[0],
+          y: config.target[1],
+          z: config.target[2],
+          duration: 1.2,
+          ease: 'power3.inOut'
+        });
+      } else {
+        cameraRef.current.position.set(...config.camPos);
+        controlsRef.current.target.set(...config.target);
+        controlsRef.current.update();
+      }
+    }
+  };
+
   // Setup Three.js Scene
   useEffect(() => {
     if (!canvasRef.current || !containerRef.current) return;
 
     const canvas = canvasRef.current;
     const container = containerRef.current;
+
+    // Guards against StrictMode's double mount: a stale async load must never
+    // overwrite the hinge/model refs of the currently rendered scene.
+    let isActive = true;
 
     // 1. Scene with Pure White Background as requested
     const scene = new THREE.Scene();
@@ -173,6 +233,9 @@ export const Scene3D: React.FC<Scene3DProps> = ({
     loader.load(
       '/models/Arai_Nimbus_S1_Concept.glb',
       (gltf) => {
+        // A newer mount superseded this load (React StrictMode); discard it.
+        if (!isActive) return;
+
         const root = gltf.scene;
         modelGroupRef.current = root;
         bodyMaterialsRef.current = [];
@@ -352,13 +415,11 @@ export const Scene3D: React.FC<Scene3DProps> = ({
           }
         });
 
-        // 4. Open the display hinge to standard laptop angle (~112°)
-        if (hingeBRef.current) {
-          hingeBRef.current.rotation.x = FOLD_CONFIGS.laptop.hingeB;
-        }
-        if (hingeARef.current) {
-          hingeARef.current.rotation.x = FOLD_CONFIGS.laptop.hingeA;
-        }
+        // 4. Apply the initial fold state defined by the active variant
+        //    (Nimbus → closed, Stratus Convertible → 360° tablet, LTE/ED1 → laptop)
+        const initialMode: LaptopFoldMode = productRef.current.defaultFold ?? 'laptop';
+        setActiveMode(initialMode);
+        applyFold(initialMode, false);
 
         // Update world matrices for accurate bounding box calculation
         root.updateMatrixWorld(true);
@@ -440,6 +501,7 @@ export const Scene3D: React.FC<Scene3DProps> = ({
     resizeObserver.observe(container);
 
     return () => {
+      isActive = false;
       cancelAnimationFrame(animationFrameId);
       resizeObserver.disconnect();
       controls.dispose();
@@ -447,7 +509,7 @@ export const Scene3D: React.FC<Scene3DProps> = ({
     };
   }, []);
 
-  // Subtle rotation pulse when product variant changes
+  // Subtle rotation pulse + automatic fold state when product variant changes
   useEffect(() => {
     if (!modelGroupRef.current) return;
 
@@ -458,6 +520,11 @@ export const Scene3D: React.FC<Scene3DProps> = ({
       duration: 1.1,
       ease: 'power2.out'
     });
+
+    // Each variant defines how the convertible should present itself
+    const mode: LaptopFoldMode = currentProduct.defaultFold ?? 'laptop';
+    setActiveMode(mode);
+    applyFold(mode, true);
   }, [currentProduct.id]);
 
   // Scroll Parallax handling for multi-section showcases
@@ -554,49 +621,11 @@ export const Scene3D: React.FC<Scene3DProps> = ({
     });
   };
 
-  // Articulated 360° Folding Modes (Laptop, Stand, Tent, Tablet)
+  // Articulated 360° Folding Modes (Closed, Laptop, Stand, Tent, Tablet)
   const setFoldMode = (mode: LaptopFoldMode) => {
     soundEngine.playClick();
     setActiveMode(mode);
-
-    const config = FOLD_CONFIGS[mode];
-    if (!config) return;
-
-    // 1. Animate Hinge A & Hinge B rotations
-    if (hingeARef.current) {
-      gsap.to(hingeARef.current.rotation, {
-        x: config.hingeA,
-        duration: 1.1,
-        ease: 'power3.inOut'
-      });
-    }
-
-    if (hingeBRef.current) {
-      gsap.to(hingeBRef.current.rotation, {
-        x: config.hingeB,
-        duration: 1.1,
-        ease: 'power3.inOut'
-      });
-    }
-
-    // 2. Animate Camera & Controls Target to frame the selected form factor
-    if (cameraRef.current && controlsRef.current) {
-      gsap.to(cameraRef.current.position, {
-        x: config.camPos[0],
-        y: config.camPos[1],
-        z: config.camPos[2],
-        duration: 1.2,
-        ease: 'power3.inOut'
-      });
-
-      gsap.to(controlsRef.current.target, {
-        x: config.target[0],
-        y: config.target[1],
-        z: config.target[2],
-        duration: 1.2,
-        ease: 'power3.inOut'
-      });
-    }
+    applyFold(mode, true);
   };
 
   // Reset Camera View
@@ -635,7 +664,7 @@ export const Scene3D: React.FC<Scene3DProps> = ({
           <p className="font-mono text-xs uppercase tracking-widest text-slate-800 font-semibold">
             Cargando Modelo 3D...
           </p>
-          <p className="text-[10px] text-slate-500 font-mono mt-0.5">Arai Stratus S1 Convertible</p>
+          <p className="text-[10px] text-slate-500 font-mono mt-0.5">{currentProduct.fullName}</p>
         </div>
       )}
 
@@ -643,7 +672,7 @@ export const Scene3D: React.FC<Scene3DProps> = ({
       <div className="absolute top-6 right-6 z-20 flex flex-col gap-2 pointer-events-auto">
         {/* Mode selector pills (Laptop, Stand, Tent, Tablet) */}
         <div className="bg-white/90 backdrop-blur-md border border-slate-200 p-1.5 rounded-xl flex items-center gap-1 shadow-lg">
-          {(['laptop', 'stand', 'tent', 'tablet'] as LaptopFoldMode[]).map((mode) => (
+          {(['closed', 'laptop', 'stand', 'tent', 'tablet'] as LaptopFoldMode[]).map((mode) => (
             <button
               key={mode}
               onClick={() => setFoldMode(mode)}
