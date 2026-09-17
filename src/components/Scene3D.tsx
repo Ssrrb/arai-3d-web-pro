@@ -6,6 +6,7 @@ import gsap from 'gsap';
 import { RotateCw, Layers, RefreshCw } from 'lucide-react';
 import { ProductVariant, FoldMode } from '../types';
 import { soundEngine } from '../utils/soundEngine';
+import { NIMBUS_MODEL_URL } from '../utils/nimbusModel';
 
 interface Scene3DProps {
   currentProduct: ProductVariant;
@@ -231,7 +232,7 @@ export const Scene3D: React.FC<Scene3DProps> = ({
     // 6. Load 3D GLB Model
     const loader = new GLTFLoader();
     loader.load(
-      '/models/Arai_Nimbus_S1_Concept.glb',
+      NIMBUS_MODEL_URL,
       (gltf) => {
         // A newer mount superseded this load (React StrictMode); discard it.
         if (!isActive) return;

@@ -1,0 +1,237 @@
+{
+  "all_passed": true,
+  "checks": [
+    {
+      "check": "Metric / millimeters / scale 0.001",
+      "pass": true,
+      "actual": [
+        "METRIC",
+        "MILLIMETERS",
+        0.0010000000474974513
+      ]
+    },
+    {
+      "check": "Closed nominal envelope 326.5 x 229 x 18.8 mm",
+      "pass": true,
+      "actual": [
+        326.5,
+        229.0,
+        18.799999237060547
+      ]
+    },
+    {
+      "check": "Base top 13.4 mm",
+      "pass": true,
+      "actual": 13.399999618530273
+    },
+    {
+      "check": "14-inch diagonal / 16:9 active panel",
+      "pass": true,
+      "actual": [
+        309.9322610014897,
+        174.33689681333794,
+        355.59999999999997,
+        1.7777777777777777
+      ]
+    },
+    {
+      "check": "LCD Emission node exists",
+      "pass": true,
+      "actual": [
+        "OUTPUT_MATERIAL",
+        "EMISSION",
+        "TEX_IMAGE"
+      ]
+    },
+    {
+      "check": "All seven requested I/O features represented",
+      "pass": true,
+      "actual": [
+        "USB-C 1",
+        "USB-A",
+        "MicroSD",
+        "USB-C 2",
+        "Kensington",
+        "3.5 mm audio",
+        "Status LED"
+      ]
+    },
+    {
+      "check": "Live chassis port Boolean cutters",
+      "pass": true,
+      "actual": [
+        "Through-floor speaker perforations | 130 x dia 1.06",
+        "Underside counterbore 08",
+        "Underside counterbore 07",
+        "Underside counterbore 06",
+        "Underside counterbore 05",
+        "Underside counterbore 04",
+        "Underside counterbore 03",
+        "Underside counterbore 02",
+        "Underside counterbore 01",
+        "Underside counterbore 00",
+        "Right side | Volume rocker",
+        "Right side | Power button",
+        "Status indicator | dia 1.30",
+        "Audio housing through wall | dia 5.20",
+        "Through wall | R Kensington",
+        "Through wall | R USB-C 2",
+        "Through wall | L MicroSD",
+        "Through wall | L USB-A",
+        "Through wall | L USB-C 1",
+        "Hollow lower shell | floor 2.10 mm"
+      ]
+    },
+    {
+      "check": "Bevel modifiers retained",
+      "pass": true,
+      "actual": [
+        "D-side | 326.50 x 229.00 x 10.05 | R8 plan",
+        "C-side | IMR palmrest and deck | top Z13.40",
+        "A-side | IMR top cover | 326.50 x 221.60"
+      ]
+    },
+    {
+      "check": "MT11015 | #1A1A1A | IMR roughness & linearized color",
+      "pass": true,
+      "actual": {
+        "roughness": 0.4000000059604645,
+        "base_color_linear": [
+          0.01032982300966978,
+          0.01032982300966978,
+          0.01032982300966978,
+          1.0
+        ]
+      }
+    },
+    {
+      "check": "MT11015 | #1A1A1A | micrograin roughness & linearized color",
+      "pass": true,
+      "actual": {
+        "roughness": 0.6499999761581421,
+        "base_color_linear": [
+          0.01032982300966978,
+          0.01032982300966978,
+          0.01032982300966978,
+          1.0
+        ]
+      }
+    },
+    {
+      "check": "Bottom micro-noise feeds Bump normal",
+      "pass": true,
+      "actual": [
+        "BSDF_PRINCIPLED",
+        "OUTPUT_MATERIAL",
+        "NEW_GEOMETRY",
+        "TEX_NOISE",
+        "BUMP"
+      ]
+    },
+    {
+      "check": "360-degree tablet cover clears base underside",
+      "pass": true,
+      "actual": {
+        "tablet_cover_max_z": -1.1999605894088745,
+        "base_floor_z": 0.0,
+        "rubber_feet_min_z": -0.9
+      }
+    },
+    {
+      "check": "Both hinge stages reach 180 degrees",
+      "pass": true,
+      "actual": {
+        "Hinge A | lower spindle, stage 2": [
+          -3.1415927410125732,
+          0.0,
+          0.0
+        ],
+        "Hinge B | display spindle, stage 1": [
+          -3.1415927410125732,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "check": "Major lid mouldings clear chassis in 25 sampled poses",
+      "pass": true,
+      "actual": "No surface intersections at 0,15,\u2026,360 degrees"
+    },
+    {
+      "check": "Logo and all four source images packed",
+      "pass": true,
+      "actual": [
+        "arai-icon.png",
+        "image10.webp",
+        "image3.webp",
+        "image4.webp",
+        "image7.webp"
+      ]
+    },
+    {
+      "check": "Spanish keyboard includes \u00d1",
+      "pass": true,
+      "actual": 74
+    },
+    {
+      "check": "Through-wall aperture ray: L USB-C 1",
+      "pass": true,
+      "actual": {
+        "hit_shell_within_45mm": false,
+        "first_hit_world": null
+      }
+    },
+    {
+      "check": "Through-wall aperture ray: L USB-A",
+      "pass": true,
+      "actual": {
+        "hit_shell_within_45mm": false,
+        "first_hit_world": null
+      }
+    },
+    {
+      "check": "Through-wall aperture ray: L MicroSD",
+      "pass": true,
+      "actual": {
+        "hit_shell_within_45mm": false,
+        "first_hit_world": null
+      }
+    },
+    {
+      "check": "Through-wall aperture ray: R USB-C 2",
+      "pass": true,
+      "actual": {
+        "hit_shell_within_45mm": false,
+        "first_hit_world": null
+      }
+    },
+    {
+      "check": "Through-wall aperture ray: R Kensington",
+      "pass": true,
+      "actual": {
+        "hit_shell_within_45mm": false,
+        "first_hit_world": null
+      }
+    },
+    {
+      "check": "Through-wall aperture ray: L 3.5 mm audio",
+      "pass": true,
+      "actual": {
+        "hit_shell_within_45mm": false,
+        "first_hit_world": null
+      }
+    },
+    {
+      "check": "Through-wall aperture ray: L Status LED",
+      "pass": true,
+      "actual": {
+        "hit_shell_within_45mm": false,
+        "first_hit_world": null
+      }
+    }
+  ],
+  "object_count": 361,
+  "blender_version": "5.2.1 LTS",
+  "blender_file": "/Users/sebastian/Documents/blender-models/Arai Nimbus S1/Arai_Nimbus_S1_Concept.blend"
+}

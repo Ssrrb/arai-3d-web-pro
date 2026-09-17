@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { CameraPreset, LightingMode, Hotspot } from '../types';
 import { HOTSPOTS } from '../data/specsData';
+import { NIMBUS_MODEL_URL } from '../utils/nimbusModel';
 
 interface Viewer3DProps {
   onSelectHotspot?: (hotspot: Hotspot | null) => void;
@@ -145,7 +146,7 @@ export const Viewer3D: React.FC<Viewer3DProps> = ({
     // 7. Load GLB model
     const loader = new GLTFLoader();
     loader.load(
-      '/models/Arai_Nimbus_S1_Concept.glb',
+      NIMBUS_MODEL_URL,
       (gltf) => {
         const model = gltf.scene;
         modelGroupRef.current = model;
