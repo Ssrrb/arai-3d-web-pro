@@ -227,17 +227,19 @@ def keyrow(labels,widths,y,h=15.1):
         key_records.append({'text':s,'x':cx,'y':y,'w':kw,'h':h})
         x+=kw+gap
 
-keyrow(['esc','←','→','↻','full','view','dim','bright','mute','vol−','vol+','lock'],[1]*12,74.0,10.8)
+keyrow(['esc','←','↻','full','view','capture','dim','bright','mute','vol−','vol+','power'],[1]*12,74.0,10.8)
 keyrow(['º','1 !','2 "','3 ·','4 $','5 %','6 &','7 /','8 (','9 )','0 =',"' ?",'¡','backspace'],[1]*13+[1.85],59.0)
 keyrow(['tab','Q','W','E','R','T','Y','U','I','O','P','` ^','+ *'],[1.45]+[1]*12,41.8)
-keyrow(['search','A','S','D','F','G','H','J','K','L','Ñ','´ ¨','enter'],[1.72]+[1]*11+[1.5],24.6)
-keyrow(['shift','< >','Z','X','C','V','B','N','M',', ;','. :','− _','shift'],[1.55]+[1]*11+[1.65],7.4)
-keyrow(['ctrl','alt','space','alt gr','ctrl','←','↑ ↓','→'],[1.6,1.35,5.3,1.3,1.2,1,1,1],-9.8)
+keyrow(['search','A','S','D','F','G','H','J','K','L','Ñ','´ ¨','intro'],[1.0]+[1]*11+[2.22],24.6)
+keyrow(['Mayús','< >','Z','X','C','V','B','N','M',', ;','. :','− _','Mayús'],[1.55]+[1]*11+[1.65],7.4)
+# Bottom row is width-balanced so the spacebar lands on the chassis centreline
+# (the touchpad is chassis-centred, so an off-centre spacebar reads as a skewed deck).
+keyrow(['ctrl','alt','space','alt gr','ctrl','←','↑ ↓','→'],[2.30,2.22,5.3,1.0,1.1,.75,.75,.75],-9.8)
 
 # Vector-etched Chromebook function icons; no font-glyph substitutions.
 for key in key_records:
     symbol=key['text']
-    if symbol not in ['full','view','dim','bright','mute','vol−','vol+','lock']: continue
+    if symbol not in ['full','view','capture','dim','bright','mute','vol−','vol+','power','backspace']: continue
     old=bpy.data.objects.get('Legend | '+symbol)
     if old: bpy.data.objects.remove(old,do_unlink=True)
     cx,cy=key['x'],key['y']
@@ -264,9 +266,15 @@ for key in key_records:
         else:
             arc(.10,0,1.05,-55,55)
             if symbol=='vol+': arc(.10,0,1.75,-55,55)
-    elif symbol=='lock':
-        stroke([(-1.2,-1.6),(1.2,-1.6),(1.2,.4),(-1.2,.4),(-1.2,-1.6)])
-        arc(0,.5,.85,0,180); stroke([(-.85,.4),(-.85,.5)]); stroke([(.85,.4),(.85,.5)])
+    elif symbol=='capture':
+        stroke([(-1.9,-1.3),(1.9,-1.3),(1.9,1.3),(-1.9,1.3),(-1.9,-1.3)])
+        arc(0,0,.62,0,360,20)
+    elif symbol=='power':
+        arc(0,0,.9,110,430,28)
+        stroke([(0,.45),(0,1.5)])
+    elif symbol=='backspace':
+        stroke([(-4.0,0),(-2.0,1.9),(4.0,1.9),(4.0,-1.9),(-2.0,-1.9),(-4.0,0)])
+        stroke([(-.1,1.0),(2.1,-1.0)]); stroke([(-.1,-1.0),(2.1,1.0)])
 
 # Retained through-wall cutters and connector assemblies.
 ports=[]

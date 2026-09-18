@@ -57,13 +57,54 @@ rect(x+1.6*k,y+1.6*k,(W-3.2)*k,(D-3.2)*k,6.4*k,stroke='#91A5B1',sw=1)
 def xy(xx,yy): return x+(xx+W/2)*k,y+(D/2-yy)*k
 px,py=xy(-149.5,83.5)
 rect(px,py,299*k,109*k,4*k,'#CCD8DE')
+# Chromebook function-row glyphs are drawn as vector line icons (same primitives as
+# the 3D model) instead of Unicode substitutes, which rendered as solid tofu blocks.
+ICON_KEYS={'full','view','capture','dim','bright','mute','vol−','vol+','power','backspace'}
+ICON_K=1.5
+def draw_icon(symbol,kx,ky):
+    def poly(pts):
+        d=' '.join(('M' if i==0 else 'L')+f'{kx+px*ICON_K*k:.2f},{ky-py*ICON_K*k:.2f}' for i,(px,py) in enumerate(pts))
+        add(f'<path d="{d}" fill="none" stroke="#35536A" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>')
+    def arc(ax,ay,r,a0,a1,n=18):
+        poly([(ax+r*math.cos(math.radians(a0+(a1-a0)*i/n)),ay+r*math.sin(math.radians(a0+(a1-a0)*i/n))) for i in range(n+1)])
+    if symbol=='full':
+        for sx in (-1,1):
+            for sy in (-1,1): poly([(sx*.7,sy*1.4),(sx*1.8,sy*1.4),(sx*1.8,sy*.35)])
+    elif symbol=='view':
+        poly([(-1.8,-1.3),(1.8,-1.3),(1.8,1.3),(-1.8,1.3),(-1.8,-1.3)])
+        poly([(-.8,-1.3),(-.8,1.3)])
+    elif symbol in ('dim','bright'):
+        r0=.65 if symbol=='dim' else .83
+        arc(0,0,r0,0,360,24)
+        for i in range(8):
+            a=i*math.pi/4
+            poly([((r0+.38)*math.cos(a),(r0+.38)*math.sin(a)),((r0+.95)*math.cos(a),(r0+.95)*math.sin(a))])
+    elif symbol in ('mute','vol−','vol+'):
+        poly([(-1.9,-.55),(-1.1,-.55),(-.15,-1.25),(-.15,1.25),(-1.1,.55),(-1.9,.55),(-1.9,-.55)])
+        if symbol=='mute':
+            poly([(.65,-.6),(1.8,.6)]); poly([(.65,.6),(1.8,-.6)])
+        else:
+            arc(.10,0,1.05,-55,55)
+            if symbol=='vol+': arc(.10,0,1.75,-55,55)
+    elif symbol=='capture':
+        bw,bh=3.8,2.6
+        add(f'<rect x="{kx-bw/2*ICON_K*k:.2f}" y="{ky-bh/2*ICON_K*k:.2f}" width="{bw*ICON_K*k:.2f}" height="{bh*ICON_K*k:.2f}" rx="{.55*ICON_K*k:.2f}" fill="none" stroke="#35536A" stroke-width="1.1"/>')
+        add(f'<circle cx="{kx:.2f}" cy="{ky:.2f}" r="{.62*ICON_K*k:.2f}" fill="#35536A"/>')
+    elif symbol=='power':
+        arc(0,0,.9,110,430,28)
+        poly([(0,.45),(0,1.5)])
+    elif symbol=='backspace':
+        poly([(-4.0,0),(-2.0,1.9),(4.0,1.9),(4.0,-1.9),(-2.0,-1.9),(-4.0,0)])
+        poly([(-.1,1.0),(2.1,-1.0)]); poly([(-.1,-1.0),(2.1,1.0)])
+
 for key in s['keyboard']:
     xx,yy=xy(key['x']-key['w']/2,key['y']+key['h']/2)
     rect(xx,yy,key['w']*k,key['h']*k,1.4*k,'#EFF3F5','#668293',.95)
     label=key['text']
-    icons={'full':'⌗','view':'▣','dim':'☼','bright':'☀','mute':'×','vol−':'−','vol+':'+','lock':'▤','space':''}
-    label=icons.get(label,label)
-    text(xx+key['w']*k/2,yy+key['h']*k/2+4,label,10.2 if len(label)>3 else 12,'#35536A','middle')
+    if label in ICON_KEYS:
+        draw_icon(label,*xy(key['x'],key['y']))
+    elif label!='space':
+        text(xx+key['w']*k/2,yy+key['h']*k/2+4,label,10.2 if len(label)>3 else 12,'#35536A','middle')
 tx,ty=xy(-58,-39)
 rect(tx,ty,116*k,62*k,2.3*k,'#DBE4E9','#4B6D82',1.5)
 rect(tx+1.8,ty+1.8,116*k-3.6,62*k-3.6,2*k,stroke='#A1B5C0',sw=1)
